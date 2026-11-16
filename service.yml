@@ -1,0 +1,76 @@
+service:
+  name: aac-portainer-agent
+  image_repo: portainer/agent
+  image_tag: 3.0.0
+  description: Management Agent for Portainer
+  icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/portainer.png
+  category: Container - Management
+  stage: prod
+  hostname: '{{ service.name }}'
+ports:
+- name: agent
+  port: 9001
+  protocol: TCP
+  external_port: 9001
+  exposed: true
+config:
+  domain_name: example.com
+  generate_hostname: false
+  integrations:
+    homepage:
+      enabled: true
+      href: '#'
+    autodns:
+      enabled: true
+    traefik:
+      enabled: false
+  schema_version: 2
+volumes:
+  var_run_docker_sock:
+    description: Auto-migrated raw volume for /var/run/docker.sock
+    type: bind
+    source: /var/run/docker.sock
+  var_lib_docker_volumes:
+    description: Auto-migrated raw volume for /var/lib/docker/volumes
+    type: bind
+    source: /var/lib/docker/volumes
+  host:
+    description: Auto-migrated raw volume for /host
+    type: bind
+    source: /
+deployment_strategy:
+  main:
+    enabled: true
+    target_stage: prod
+  dev:
+    enabled: true
+    target_stage: dev
+  test:
+    enabled: false
+    target_stage: test
+  ansible-dev:
+    enabled: true
+    target_stage: dev
+  iac-dev:
+    enabled: true
+    target_stage: dev
+  template-dev:
+    enabled: true
+    target_stage: dev
+deployments:
+  docker_compose:
+    restart_policy: always
+    host_base_path: /export/docker
+    volumes:
+    - var_run_docker_sock:/var/run/docker.sock
+    - var_lib_docker_volumes:/var/lib/docker/volumes
+    - host:/host
+    environment:
+      PUID: '{{ vars.PUID }}'
+      PGID: '{{ vars.PGID }}'
+      TZ: '{{ vars.TZ }}'
+vars:
+  PUID: '1000'
+  PGID: '1000'
+  TZ: Europe/Berlin
+secrets: {}

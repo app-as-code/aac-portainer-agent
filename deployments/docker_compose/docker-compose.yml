@@ -1,0 +1,55 @@
+services:
+  # --- Main Application Service ---
+  aac-portainer-agent:
+    image: "portainer/agent:3.0.0"
+    container_name: "aac-portainer-agent"
+    hostname: "aac-portainer-agent"
+    restart: "always"
+
+
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Europe/Berlin"
+
+    ports:
+      - "9001:9001/tcp"
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/var/lib/docker/volumes:/var/lib/docker/volumes"
+      - "/:/host"
+
+    networks:
+      - exposed
+      - interconnect
+      - stack_internal
+
+    labels:
+      auto-dns.createWildcard.aac-portainer-agent: "false"
+      auto-dns.customDNS.aac-portainer-agent: "true"
+      auto-dns.customDOMAIN.aac-portainer-agent: "example.com"
+      auto-dns.customHost.aac-portainer-agent: "aac-portainer-agent"
+      homepage.group: "Container - Management"
+      homepage.name: "Portainer Agent"
+      homepage.href: "#"
+      homepage.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/portainer.png"
+      homepage.description: "Management Agent for Portainer"
+
+
+
+
+networks:
+  secured:
+    name: "services-secured"
+    external: true
+  exposed:
+    name: "services-exposed"
+    external: true
+  interconnect:
+    name: "docker-default"
+    external: true
+  stack_internal:
+    name: "aac-portainer-agent_stack_internal"
+    driver: "bridge"
+
